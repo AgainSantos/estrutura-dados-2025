@@ -14,11 +14,26 @@ public class ArvoreBinaria implements Arvore {
     
     @Override
     public void inserir(int valor) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'inserir'");
+        this.raiz = inserirRecursivo(this.raiz, valor);
     }
     
+    private NodoArvore inserirRecursivo(NodoArvore noAtual, int valor) {
+       // Se noAtual = nulo, ele insere como raiz.
+        if (noAtual == null) {
+            return new NodoArvore(valor);
+        }
 
+        if (valor < noAtual.chave) {
+            noAtual.filhoEsquerda = inserirRecursivo(noAtual.filhoEsquerda, valor);
+        } else if (valor > noAtual.chave) {
+            noAtual.filhoDireita = inserirRecursivo(noAtual.filhoDireita, valor);
+        } else {
+            return noAtual;
+        }
+
+        return noAtual;
+    }
+    
 
     // --- MÉTODO DE PESQUISA ---
     // Esse método é um modelo do tipo de recursão que pode 
@@ -44,18 +59,26 @@ public class ArvoreBinaria implements Arvore {
      * @param valor O valor a ser procurado.
      * @return O nó encontrado ou null.
      */
-    private NodoArvore pesquisaRecursivo(NodoArvore noAtual, int valor) {
-        if (noAtual == null || noAtual.chave == valor) {
-            return noAtual;
-        }
 
-        if (valor < noAtual.chave) {
-            return pesquisaRecursivo(noAtual.filhoEsquerda, valor);
-        } else {
-            return pesquisaRecursivo(noAtual.filhoDireita, valor);
-        }
+    private NodoArvore pesquisaRecursivo(NodoArvore noAtual, int valor) {
+    if (noAtual == null) {
+        System.out.println(" Chegou a um nó nulo. Valor " + valor + " não encontrado.");
+        return null;
     }
 
+    if (noAtual.chave == valor) {
+        System.out.println("-> Valor " + valor + " encontrado!");
+        return noAtual;
+    }
+
+    if (valor < noAtual.chave) {
+        System.out.println("Buscando " + valor + ". Indo para a ESQUERDA de " + noAtual.chave);
+        return pesquisaRecursivo(noAtual.filhoEsquerda, valor);
+    } else {
+        System.out.println("Buscando " + valor + ". Indo para a DIREITA de " + noAtual.chave);
+        return pesquisaRecursivo(noAtual.filhoDireita, valor);
+    }
+}
 
     @Override
     public void remover(int valor) {
