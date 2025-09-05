@@ -41,13 +41,15 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
     private NodoArvore<T> inserirRecursivo(NodoArvore<T> noAtual, T objeto) {
         // Caso base: se a árvore (ou subárvore) estiver vazia, cria o novo nó.
         if (noAtual == null) {
-            return new NodoArvore(objeto);
+            return new NodoArvore<>(objeto);
         }
 
+        int comparacao = objeto.compareTo(noAtual.objeto);
+
         // Caso recursivo: desce na árvore
-        if (noAtual.objeto.compareTo(objeto) >= 1) {
+        if (comparacao < 0) {
             noAtual.filhoEsquerda = inserirRecursivo(noAtual.filhoEsquerda, objeto);
-        } else if (noAtual.objeto.compareTo(objeto) < 1) {
+        } else if (comparacao > 0) {
             noAtual.filhoDireita = inserirRecursivo(noAtual.filhoDireita, objeto);
         }
         
@@ -76,20 +78,38 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
      * @param valor O valor a ser procurado.
      * @return O nó encontrado ou null.
      */
-    private NodoArvore<T> pesquisaRecursivo(NodoArvore<T> noAtual, T objeto) {
-        if (noAtual == null || noAtual.objeto == objeto) {
-            return noAtual;
+        private NodoArvore<T> pesquisaRecursivo(NodoArvore<T> noAtual, T objeto) {
+        if (noAtual == null) {
+            return null;
         }
 
-        if (noAtual.objeto.compareTo(objeto) <= 1) {
+        int comparacao = objeto.compareTo(noAtual.objeto);
+
+        if (comparacao < 0) {
             return pesquisaRecursivo(noAtual.filhoEsquerda, objeto);
-        } else {
+        } else if (comparacao > 0) {
             return pesquisaRecursivo(noAtual.filhoDireita, objeto);
+        } else {
+            return noAtual;
         }
     }
     
     // --- MÉTODO DE IMPRESSÃO (CAMINHAMENTO) ---
-    
+     @Override
+    public String toString() {
+        // Usa um StringBuilder para construir a String de forma eficiente
+        StringBuilder sb = new StringBuilder();
+        toStringEmOrdemRecursivo(this.raiz, sb);
+        return sb.toString().trim(); // .trim() remove espaços extras no início ou fim
+    }
+
+     private void toStringEmOrdemRecursivo(NodoArvore<T> no, StringBuilder sb) {
+        if (no != null) {
+            toStringEmOrdemRecursivo(no.filhoEsquerda, sb);
+            sb.append(no.objeto.toString()).append("\n "); // Adiciona o objeto e um espaço
+            toStringEmOrdemRecursivo(no.filhoDireita, sb);
+        }
+    }
     
 
     @Override
