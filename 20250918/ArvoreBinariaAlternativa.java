@@ -1,18 +1,24 @@
+import java.util.Comparator;
+
 /**
- * Implementação de uma Árvore Binária de Busca.
+ * Implementação de uma Árvore Binária de Busca que utiliza um Comparator.
  * Foco em operações recursivas para inserção, busca e remoção.
- * * @author Equipe da Disciplina
+ * *@author Equipe da Disciplina
  * 
- * @version 2025.08.14
+ * @version 2025.09.20
  */
-public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
+
+public class ArvoreBinariaAlternativa<T> implements Arvore<T> {
     NodoArvore<T> raiz;
+    private final Comparator<T> comparator; // Adicionado um campo para armazenar o Comparator
 
     /**
-     * Construtor da árvore. Inicia uma árvore vazia.
+     * Construtor da árvore. Inicia uma árvore vazia e armazena o Comparator.
+     * @param comparator O critério de comparação a ser utilizado pela árvore.
      */
-    public ArvoreBinaria() {
+    public ArvoreBinariaAlternativa(Comparator<T> comparator) {
         this.raiz = null;
+        this.comparator = comparator;
     }
 
     // --- MÉTODO DE INSERÇÃO ---
@@ -20,7 +26,7 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
     /**
      * Método público para inserir um novo valor na árvore.
      * Ele chama o método auxiliar recursivo para encontrar a posição correta.
-     * [cite: 7]
+     *
      *
      * @param valor O valor inteiro a ser inserido.
      */
@@ -34,26 +40,28 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
      * A lógica segue o pseudocódigo "função insere".
      * Se a subárvore atual é nula, o novo nó é inserido aqui.
      * Caso contrário, a busca continua recursivamente pela subárvore
-     * esquerda ou direita. [cite: 1, 7]
+     * esquerda ou direita.
      *
      * @param noAtual O nó raiz da subárvore atual.
-     * @param valor   O valor a ser inserido.
+     * @param objeto  O valor a ser inserido.
      * @return O nó raiz da subárvore modificada.
      */
     private NodoArvore<T> inserirRecursivo(NodoArvore<T> noAtual, T objeto) {
         // Caso base: se a árvore (ou subárvore) estiver vazia, cria o novo nó.
         if (noAtual == null) {
-            return new NodoArvore<T>(objeto);
+            return new NodoArvore<>(objeto);
         }
 
+        int comparacao = comparator.compare(objeto, noAtual.objeto);
+
         // Caso recursivo: desce na árvore
-        if (noAtual.objeto.compareTo(objeto) >= 1) {
+        if (comparacao < 0) { // Se objeto for menor, vai para a esquerda
             noAtual.filhoEsquerda = inserirRecursivo(noAtual.filhoEsquerda, objeto);
-        } else if (noAtual.objeto.compareTo(objeto) < 1) {
+        } else if (comparacao > 0) { // Se objeto for maior, vai para a direita
             noAtual.filhoDireita = inserirRecursivo(noAtual.filhoDireita, objeto);
         }
 
-        // Se o valor já existe, não faz nada e retorna o nó como está.
+        // Se o valor já existe (comparacao == 0), não faz nada e retorna o nó como está.
         return noAtual;
     }
 
@@ -61,8 +69,7 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
 
     /**
      * Método público para pesquisar um valor na árvore.
-     * 
-     * @param valor O valor a ser procurado.
+     * * @param objeto O valor a ser procurado.
      * @return O nó que contém o valor, ou null se não for encontrado.
      */
     @Override
@@ -71,39 +78,40 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
     }
 
     /**
-     * Método auxiliar recursivo para buscar um valor. [cite: 7]
+     * Método auxiliar recursivo para buscar um valor.
      * Compara o valor com o nó atual e decide se continua a busca
-     * na subárvore esquerda ou direita. [cite: 1, 7]
+     * na subárvore esquerda ou direita.
      *
      * @param noAtual O nó raiz da subárvore de busca.
-     * @param valor   O valor a ser procurado.
+     * @param objeto  O valor a ser procurado.
      * @return O nó encontrado ou null.
      */
     private NodoArvore<T> pesquisaRecursivo(NodoArvore<T> noAtual, T objeto) {
         if (noAtual == null) {
-        System.out.println("Médico não foi encontrado na árvore (via CRM).");
-        return noAtual;
+            System.out.println("Médico não foi encontrado na árvore (via Email).");
+            return noAtual;
         }
-        if (noAtual.objeto.compareTo(objeto) == 0) {
-            System.out.println("Medico encontrado (via CRM): " + noAtual.objeto);
+        
+        int comparacao = comparator.compare(objeto, noAtual.objeto);
+
+        if (comparacao == 0) {
+            System.out.println("Medico encontrado (via Email): " + noAtual.objeto);
             return noAtual; // Encontrou
         }
 
-        if (noAtual.objeto.compareTo(objeto) >= 1) {
+        if (comparacao < 0) {
             return pesquisaRecursivo(noAtual.filhoEsquerda, objeto);
         } else {
             return pesquisaRecursivo(noAtual.filhoDireita, objeto);
         }
     }
 
-    // --- MÉTODO DE IMPRESSÃO (CAMINHAMENTO) ---
-
     // --- MÉTODO DE REMOÇÃO ---
 
     /**
      * Método público para remover um valor da árvore.
      * Ele chama o método auxiliar recursivo para encontrar e remover o nó.
-     * * @param objeto O valor a ser removido.
+     * @param objeto O valor a ser removido.
      */
     @Override
     public void remover(T objeto) {
@@ -112,9 +120,8 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
 
     /**
      * Método auxiliar recursivo para remover um nó da árvore.
-     * * @param noAtual O nó raiz da subárvore atual.
-     * 
-     * @param objeto O valor a ser removido.
+     * @param noAtual O nó raiz da subárvore atual.
+     * * @param objeto O valor a ser removido.
      * @return O nó raiz da subárvore modificada.
      */
     private NodoArvore<T> removerRecursivo(NodoArvore<T> noAtual, T objeto) {
@@ -122,14 +129,14 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
         if (noAtual == null) {
             return null;
         }
-
-        int comparacao = noAtual.objeto.compareTo(objeto);
+        
+        int comparacao = comparator.compare(objeto, noAtual.objeto);
 
         // Procura o nó a ser removido
-        if (comparacao > 0) {
+        if (comparacao < 0) {
             noAtual.filhoEsquerda = removerRecursivo(noAtual.filhoEsquerda, objeto);
             return noAtual;
-        } else if (comparacao < 0) {
+        } else if (comparacao > 0) {
             noAtual.filhoDireita = removerRecursivo(noAtual.filhoDireita, objeto);
             return noAtual;
         } else { // O nó foi encontrado.
@@ -154,9 +161,8 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
     /**
      * Encontra o menor valor em uma subárvore.
      * Usado para encontrar o sucessor de um nó com dois filhos.
-     * * @param no O nó raiz da subárvore.
-     * 
-     * @return O valor do nó com o menor valor.
+     * @param no O nó raiz da subárvore.
+     * * @return O valor do nó com o menor valor.
      */
     private T encontrarMenorValor(NodoArvore<T> no) {
         if (no.filhoEsquerda == null) {
@@ -166,8 +172,10 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
         }
     }
 
+    // --- MÉTODOS DE IMPRESSÃO (CAMINHAMENTO) ---
+
     /**
-     * Imprime os elementos da árvore usando o caminhamento pré-fixado. [cite: 7]
+     * Imprime os elementos da árvore usando o caminhamento pré-fixado.
      * Raiz -> Esquerda -> Direita.
      */
     @Override
@@ -177,8 +185,7 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
 
     /**
      * Método auxiliar recursivo para o caminhamento pré-fixado.
-     * 
-     * @param no O nó raiz da subárvore a ser impressa.
+     * * @param no O nó raiz da subárvore a ser impressa.
      */
     private void imprimePreFixadoRecursivo(NodoArvore<T> no) {
         if (no != null) {
@@ -189,18 +196,15 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
     }
 
     /**
-     * Imprime os elementos da árvore usando o caminhamento pré-fixado. [cite: 7]
-     * Raiz -> Esquerda -> Direita.
+     * Imprime os elementos da árvore usando o caminhamento pós-fixado.
      */
-
     public void imprimePosFixado() {
         imprimePosFixadoRecursivo(this.raiz);
     }
 
     /**
-     * Método auxiliar recursivo para o caminhamento pré-fixado.
-     * 
-     * @param no O nó raiz da subárvore a ser impressa.
+     * Método auxiliar recursivo para o caminhamento pós-fixado.
+     * * @param no O nó raiz da subárvore a ser impressa.
      */
     private void imprimePosFixadoRecursivo(NodoArvore<T> no) {
         if (no != null) {
@@ -211,17 +215,15 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
     }
 
     /**
-     * Imprime os elementos da árvore usando o caminhamento pré-fixado. [cite: 7]
-     * Raiz -> Esquerda -> Direita.
+     * Imprime os elementos da árvore usando o caminhamento em ordem.
      */
     public void imprimeEmOrdem() {
         imprimeEmOrdemRecursivo(this.raiz);
     }
 
     /**
-     * Método auxiliar recursivo para o caminhamento pré-fixado.
-     * 
-     * @param no O nó raiz da subárvore a ser impressa.
+     * Método auxiliar recursivo para o caminhamento em ordem.
+     * * @param no O nó raiz da subárvore a ser impressa.
      */
     private void imprimeEmOrdemRecursivo(NodoArvore<T> no) {
         if (no != null) {
@@ -230,5 +232,4 @@ public class ArvoreBinaria<T extends Comparable<T>> implements Arvore<T> {
             imprimeEmOrdemRecursivo(no.filhoDireita);
         }
     }
-
 }
